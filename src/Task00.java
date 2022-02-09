@@ -3,14 +3,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 public class Task00 {
     public static void main(String[] args) throws IOException {
-        Set<Long> set = new TreeSet<>();
+        Set<Long> set = new HashSet<>();
         File file = new File("inputs//input00.txt");
         Scanner sc = new Scanner(file);
-        while(sc.hasNextLine())
+        while(sc.hasNext())
             set.add(sc.nextLong());
         sc.close();
         Long sum = set.stream().mapToLong(Long::longValue).sum();
