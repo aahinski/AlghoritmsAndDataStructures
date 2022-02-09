@@ -1,29 +1,32 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Task01 {
     public static void main(String[] args) throws IOException {
-        List<Integer> list = new ArrayList<>();
-        List<Integer> left = new ArrayList<>();
-        List<Integer> right = new ArrayList<>();
+        LinkedHashSet<Long> set = new LinkedHashSet<>();
+        ArrayList<Long> left = new ArrayList<>();
+        ArrayList<Long> right = new ArrayList<>();
         File file = new File("inputs//input01.txt");
         Scanner sc = new Scanner(file);
         while(sc.hasNext())
-            list.add(sc.nextInt());
+            set.add(sc.nextLong());
         sc.close();
-        list.stream().filter(x -> x <= list.get(0)).forEach(left::add);
-        list.stream().filter(x -> x > list.get(0)).forEach(right::add);
+        Iterator<Long> iterator = set.iterator();
+        long root = (Long)iterator.next();
+        for(Long key : set) {
+            if(key <= root)
+                left.add(key);
+            else right.add(key);
+        }
         FileWriter fw = new FileWriter("outputs//output01.txt");
-        Integer father = left.get(0);
+        Long father = left.get(0);
         left.remove(0);
         fw.write(father.toString() + "\n");
         boolean exists = false;
         while(left.size() != 0) {
-            for(Integer key : left) {
+            for(Long key : left) {
                 if(key < father) {
                     exists = true;
                     father = key;
@@ -44,7 +47,7 @@ public class Task01 {
             right.remove(0);
             fw.write(father.toString() + "\n");
             while (right.size() != 0) {
-                for (Integer key : left) {
+                for (Long key : right) {
                     if (key > father) {
                         exists = true;
                         father = key;
