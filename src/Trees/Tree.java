@@ -32,4 +32,38 @@ public class Tree {
         }
         return list;
     }
+
+    private Node deleteRecursively(Node node, long key) {
+        if(node == null)
+            return null;
+
+        if (key < node.key) {
+            node.left = deleteRecursively(node.left, key);
+            return node;
+        }
+        else if (key > node.key) {
+            node.right = deleteRecursively(node.right, key);
+            return node;
+        }
+
+        if(node.left == null)
+            return node.right;
+        if(node.right == null)
+            return node.left;
+
+        else {
+            long minKey = findMin(node.right).key;
+            node.key = minKey;
+            node.right = deleteRecursively(node.right, minKey);
+            return node;
+        }
+    }
+
+    private Node findMin(Node node) {
+        if(node.left != null)
+            return findMin(node.left);
+        else return node;
+    }
+
+    public void delete(long key) { root = deleteRecursively(root, key); }
 }
