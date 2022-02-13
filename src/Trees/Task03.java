@@ -1,90 +1,71 @@
 package Trees;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Scanner;
 
 public class Task03 implements Runnable {
     static class Node {
         int key;
-        Node parent;
-        boolean left;
+        Node left;
+        Node right;
 
         Node(int key) {
             this.key = key;
-            this.parent = null;
-            this.left = true;
-        }
-
-        Node(Node node) {
-            this.key = node.key;
-            this.parent = node.parent;
-            this.left = node.left;
+            this.left = null;
+            this.right = null;
         }
 
         Node() {}
     }
 
-    boolean isBinarySearchedTree(String fileName) throws FileNotFoundException {
-        File file = new File(fileName);
-        Scanner sc = new Scanner(file);
-        Node[] tree = new Node[Integer.parseInt(sc.nextLine())];
-        tree[0] = new Node(Integer.parseInt(sc.nextLine()));
+    public boolean isBinarySearchTree(Node node, Integer min, Integer max) {
+        if(node == null)
+            return true;
+
+        if(min != null)
+            if(node.key < min)
+                return false;
+
+        if(max != null)
+            if(node.key >= max)
+                return false;
+
+        return isBinarySearchTree(node.right, node.key, max) && isBinarySearchTree(node.left, min, node.key);
+    }
+
+    public void solution() throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader("inputs//input03.txt"));
+        Node[] tree = new Node[Integer.parseInt(br.readLine())];
+        tree[0] = new Node(Integer.parseInt(br.readLine()));
         int i = 1;
-        while(sc.hasNext()) {
-            Node node = new Node();
-            String[] fields = sc.nextLine().split(" ");
-            node.key = Integer.parseInt(fields[0]);
-            node.parent = tree[Integer.parseInt(fields[1]) - 1];
-            if(fields[2].equals("L"))
-                node.left = true;
-            else node.left = false;
-            Node tmp = new Node(node);
-            while(tmp != tree[0]) {
-                boolean left = tmp.left;
-                if(left) {
-                    if (node.key >= tmp.parent.key)
-                        return false;
-                } else {
-                    if (node.key < tmp.parent.key)
-                        return false;
-                }
-                tmp = tmp.parent;
-            }
+        String line;
+        while((line = br.readLine()) != null) {
+            String[] fields = line.split(" ");
+            Node node = new Node(Integer.parseInt(fields[0]));
             tree[i] = node;
+            if(fields[2].equals("L"))
+                tree[Integer.parseInt(fields[1]) - 1].left = node;
+            else tree[Integer.parseInt(fields[1]) - 1].right = node;
             i++;
         }
-        return true;
+        br.close();
+        FileWriter fw = new FileWriter("outputs//output03.txt");
+        if(isBinarySearchTree(tree[0], null, null))
+            fw.write("YES");
+        else fw.write("NO");
+        fw.close();
     }
 
     public static void main(String[] args) { new Thread(null, new Task03(), "", 64 * 1024 * 1024).start() ; }
 
     public void run() {
-        LocalDateTime from = LocalDateTime.now();
-        File file = new File("outputs//output03.txt");
-        FileWriter fw = null;
         try {
-            fw = new FileWriter(file);
+            solution();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            if(isBinarySearchedTree("inputs//input03.txt"))
-                fw.write("YES");
-            else fw.write("NO");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        LocalDateTime to = LocalDateTime.now();
-        System.out.println(Duration.between(from, to).toMillis());
     }
 }
