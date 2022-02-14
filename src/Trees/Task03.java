@@ -1,69 +1,85 @@
 package Trees;
 
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Scanner;
 
 public class Task03 implements Runnable {
     static class Node {
         int key;
-        Node left;
-        Node right;
+        Node parent;
+        int max;
+        int min;
 
         Node(int key) {
             this.key = key;
-            this.left = null;
-            this.right = null;
+            this.parent = null;
+            this.min = -2147483648;
+            this.max = 2147483647;
         }
 
         Node() {}
     }
 
-    public boolean isBinarySearchTree(Node node, Integer min, Integer max) {
-        if(node == null)
-            return true;
-
-        if(min != null)
-            if(node.key < min)
-                return false;
-
-        if(max != null)
-            if(node.key >= max)
-                return false;
-
-        return isBinarySearchTree(node.right, node.key, max) && isBinarySearchTree(node.left, min, node.key);
-    }
-
-    public void solution() throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader("inputs//input03.txt"));
+    boolean isBinarySearchedTree(String fileName) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
         Node[] tree = new Node[Integer.parseInt(br.readLine())];
         tree[0] = new Node(Integer.parseInt(br.readLine()));
         int i = 1;
         String line;
         while((line = br.readLine()) != null) {
+            Node node = new Node();
             String[] fields = line.split(" ");
-            Node node = new Node(Integer.parseInt(fields[0]));
+            node.key = Integer.parseInt(fields[0]);
+            node.parent = tree[Integer.parseInt(fields[1]) - 1];
+            if(fields[2].equals("L")) {
+                node.min = node.parent.min;
+                node.max = node.parent.key - 1;
+            } else {
+                node.min = node.parent.key;
+                node.max = node.parent.max;
+            }
+            if(node.key < node.min || node.key > node.max)
+                return false;
             tree[i] = node;
-            if(fields[2].equals("L"))
-                tree[Integer.parseInt(fields[1]) - 1].left = node;
-            else tree[Integer.parseInt(fields[1]) - 1].right = node;
             i++;
         }
         br.close();
-        FileWriter fw = new FileWriter("outputs//output03.txt");
-        if(isBinarySearchTree(tree[0], null, null))
-            fw.write("YES");
-        else fw.write("NO");
-        fw.close();
+        return true;
     }
 
     public static void main(String[] args) { new Thread(null, new Task03(), "", 64 * 1024 * 1024).start() ; }
 
     public void run() {
+        boolean isBinarySearchTree = false;
         try {
-            solution();
+            isBinarySearchTree = isBinarySearchedTree("inputs//input03.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("outputs//output03.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(isBinarySearchTree) {
+            try {
+                fw.write("YES");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            try {
+                fw.write("NO");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
