@@ -34,6 +34,8 @@ public class Task03 implements Runnable {
             node.key = Integer.parseInt(fields[0]);
             node.parent = tree[Integer.parseInt(fields[1]) - 1];
             if(fields[2].equals("L")) {
+                if(node.parent.key == -2147483648)
+                    return false;
                 node.min = node.parent.min;
                 node.max = node.parent.key - 1;
             } else {
