@@ -73,14 +73,15 @@ public class Task7 {
 
         public void findHeightsViaPostOrderTraversal(Node node) {
             if(node != null) {
-                if(node.left != null && node.right != null) {
-                    findHeightsViaPostOrderTraversal(node.left);
-                    findHeightsViaPostOrderTraversal(node.right);
+                findHeightsViaPostOrderTraversal(node.left);
+                findHeightsViaPostOrderTraversal(node.right);
+                if(node.left != null && node.right != null)
                     node.height = Math.max(node.left.height, node.right.height) + 1;
-                }
-                else node.height = - 1;
-                if (node.height == 0)
-                    node.height = 1;
+                else if(node.left == null && node.right != null)
+                    node.height = node.right.height + 1;
+                else if(node.left != null && node.right == null)
+                    node.height = node.left.height + 1;
+                else node.height = 0;
             }
         }
 
