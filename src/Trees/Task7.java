@@ -1,8 +1,10 @@
 package Trees;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Task7 {
     static class Node {
@@ -10,6 +12,8 @@ public class Task7 {
         Node right;
         Node left;
         long height;
+        long rHeight;
+        long lHeight;
 
         Node(long key) {
             this.key = key;
@@ -75,13 +79,26 @@ public class Task7 {
             if(node != null) {
                 findHeightsViaPostOrderTraversal(node.left);
                 findHeightsViaPostOrderTraversal(node.right);
-                if(node.left != null && node.right != null)
+                if(node.left != null && node.right != null) {
                     node.height = Math.max(node.left.height, node.right.height) + 1;
-                else if(node.left == null && node.right != null)
+                    node.lHeight = node.left.height;
+                    node.rHeight = node.right.height;
+                }
+                else if(node.left == null && node.right != null) {
                     node.height = node.right.height + 1;
-                else if(node.left != null && node.right == null)
+                    node.lHeight = - 1;
+                    node.rHeight = node.right.height;
+                }
+                else if(node.left != null && node.right == null) {
                     node.height = node.left.height + 1;
-                else node.height = 0;
+                    node.lHeight = node.left.height;
+                    node.rHeight =  - 1;
+                }
+                else {
+                    node.height = 0;
+                    node.lHeight = - 1;
+                    node.rHeight =  - 1;
+                }
             }
         }
 
@@ -126,9 +143,11 @@ public class Task7 {
         long i = treeHeight;
         List<Node> nodesList = new LinkedList<>();
         nodesList = tree.findNodesWithLevel(tree.root, i, level, nodesList);
+        nodesList = nodesList.stream()
+                .filter(x -> (x.rHeight == x.lHeight))
+                .collect(Collectors.toList());
         if(nodesList.size() % 2 == 1) {
-            long key = nodesList.get((nodesList.size() - 1) / 2).key;
-            tree.delete(key);
+            tree.delete(nodesList.get((nodesList.size() - 1) / 2).key);
         }
         List<Long> list = new LinkedList<>();
         list = tree.preOrderTraversal(tree.root, list);
