@@ -28,7 +28,7 @@ public class Task13DP {
     static List<Case> lowerList(List<Case> list) {
         List<Case> lower = new LinkedList<>();
         for(Case c : list) {
-            d[d.length - 1] = c.k;
+            //d[d.length - 1] = c.k;
             for(i = 0; i < d.length; i++) {
                 if(c.k - d[i] >= 0) {
                     if((c.l + c.k - d[i]) >= 0) { // 1->2 mark of 1st
@@ -61,11 +61,11 @@ public class Task13DP {
                     }
                 }
             }
-            d[d.length - 1] = c.l;
-            System.out.println("kungfu");
-            for(int di : d)
-                System.out.println(di);
-            System.out.println();
+            //d[d.length - 1] = c.l;
+            //System.out.println("kungfu");
+            //for(int di : d)
+                //System.out.println(di);
+            //System.out.println();
             for(i = 0; i < d.length; i++) {
                 if(c.l >= d[i]) {
                     if((c.l + c.k - d[i]) >= 0) {
@@ -119,10 +119,10 @@ public class Task13DP {
         int l = Integer.parseInt(br.readLine());
         int m = 100 - k - l;
         String[] tmp = br.readLine().split(" ");
-        d = new int[tmp.length + 2];
+        d = new int[tmp.length + 1];
         for(i = 0; i < tmp.length; i++)
             d[i] = Integer.parseInt(tmp[i]);
-        d[d.length - 2] = 100;
+        d[d.length - 1] = 100;
         for(int[] a : table)
             for(int b : a)
                 a[b] = 0;
@@ -135,24 +135,27 @@ public class Task13DP {
         if(lower.size() == 0)
             return 10201;
         for(Case c : lower) {
-            System.out.println(c.k + " " + c.l + " " + c.m);
+            //System.out.println(c.k + " " + c.l + " " + c.m);
             if((100 - k - l) == x)
                 return lvl;
         }
-        System.out.println();
+        //System.out.println();
         while(qCount != 10201) {
             upper = new LinkedList<>(lower);
             lower = new LinkedList<>(lowerList(upper));
             if(lower.size() == 0)
                 return 10201;
-            qCount = qCount + 2 * lower.size();
+            //qCount = qCount + 2 * lower.size();
             lvl++;
             for(Case c : lower) {
-                System.out.println(c.k + " " + c.l + " " + c.m);
-                if((100 - c.k - c.l) == x)
+                //System.out.println(c.k + " " + c.l + " " + c.m);
+                if(c.m == x)
                     return lvl;
+                if(c.k == c.l)
+                    qCount++;
+                else qCount = qCount + 2;
             }
-            System.out.println();
+            //System.out.println();
         }
         return lvl;
     }

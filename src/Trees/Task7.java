@@ -6,16 +6,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Task7 {
-    static class Node {
+public class Task7 implements Runnable {
+    static class Arc {
         long key;
-        Node right;
-        Node left;
+        Arc right;
+        Arc left;
         long height;
-        long rHeight;
-        long lHeight;
+        long heightR;
+        long heightL;
 
-        Node(long key) {
+        Arc(long key) {
             this.key = key;
             this.right = null;
             this.left = null;
@@ -23,90 +23,98 @@ public class Task7 {
     }
 
     static class Tree {
-        Node root;
+        Arc root;
 
-        private Node insertRecursively(Node node, long key) {
-            if (node == null)
-                return new Node(key);
+        private Arc insertRecursively(Arc arc, long key) {
+            if (arc == null)
+                return new Arc(key);
 
-            if (key < node.key) {
-                node.left = insertRecursively(node.left, key);
-            } else if (key > node.key) {
-                node.right = insertRecursively(node.right, key);
+            if (key < arc.key) {
+                arc.left = insertRecursively(arc.left, key);
+            } else if (key > arc.key) {
+                arc.right = insertRecursively(arc.right, key);
             } else {
-                return node;
+                return arc;
             }
 
-            return node;
+            return arc;
         }
 
-        private Node deleteRecursively(Node node, long key) {
-            if (node == null)
+        private Arc delete1(Arc arc, long key) {
+            if (arc == null)
                 return null;
 
-            if (key < node.key) {
-                node.left = deleteRecursively(node.left, key);
-                return node;
-            } else if (key > node.key) {
-                node.right = deleteRecursively(node.right, key);
-                return node;
+            if (key < arc.key) {
+                arc.left = delete1(arc.left, key);
+                return arc;
+            } else if (key > arc.key) {
+                arc.right = delete1(arc.right, key);
+                return arc;
             }
 
-            if (node.left == null)
-                return node.right;
-            if (node.right == null)
-                return node.left;
+            if (arc.left == null)
+                return arc.right;
+            if (arc.right == null)
+                return arc.left;
 
             else {
-                long minKey = findMin(node.right).key;
-                node.key = minKey;
-                node.right = deleteRecursively(node.right, minKey);
-                return node;
+                long minKey = findMin(arc.right).key;
+                arc.key = minKey;
+                arc.right = delete1(arc.right, minKey);
+                return arc;
             }
         }
 
-        private Node findMin(Node node) {
-            if (node.left != null)
-                return findMin(node.left);
-            else return node;
+        private Arc findMin(Arc arc) {
+            if (arc.left != null)
+                return findMin(arc.left);
+            else return arc;
         }
 
         public void delete(long key) {
-            root = deleteRecursively(root, key);
+            root = delete1(root, key);
         }
 
-        public void findHeightsViaPostOrderTraversal(Node node) {
-            if(node != null) {
-                findHeightsViaPostOrderTraversal(node.left);
-                findHeightsViaPostOrderTraversal(node.right);
-                if(node.left != null && node.right != null) {
-                    node.height = Math.max(node.left.height, node.right.height) + 1;
-                    node.lHeight = node.left.height;
-                    node.rHeight = node.right.height;
-                }
-                else if(node.left == null && node.right != null) {
-                    node.height = node.right.height + 1;
-                    node.lHeight = - 1;
-                    node.rHeight = node.right.height;
-                }
-                else if(node.left != null && node.right == null) {
-                    node.height = node.left.height + 1;
-                    node.lHeight = node.left.height;
-                    node.rHeight =  - 1;
-                }
-                else {
-                    node.height = 0;
-                    node.lHeight = - 1;
-                    node.rHeight =  - 1;
+        public void findHeights(Arc arc) {
+            if (arc != null) {
+                findHeights(arc.left);
+                findHeights(arc.right);
+                if (arc.left != null && arc.right != null) {
+                    arc.height = Math.max(arc.left.height, arc.right.height) + 1;
+                    arc.heightL = arc.left.height;
+                    arc.heightR = arc.right.height;
+                } else if (arc.left == null && arc.right != null) {
+                    arc.height = arc.right.height + 1;
+                    arc.heightL = -1;
+                    arc.heightR = arc.right.height;
+                } else if (arc.left != null && arc.right == null) {
+                    arc.height = arc.left.height + 1;
+                    arc.heightL = arc.left.height;
+                    arc.heightR = -1;
+                } else {
+                    arc.height = 0;
+                    arc.heightL = -1;
+                    arc.heightR = -1;
                 }
             }
         }
 
-        public List preOrderTraversal(Node node, List list) {
-            if (node != null) {
-                list.add(node.key);
-                preOrderTraversal(node.left, list);
-                preOrderTraversal(node.right, list);
+        public List preOrderTraversal(Arc arc, List list) {
+            if (arc != null) {
+                list.add(arc.key);
+                preOrderTraversal(arc.left, list);
+                preOrderTraversal(arc.right, list);
+            }
+            return list;
+        }
+
+        public List findArcsWithEqualSubtreeViaPreOrderTraversal(Arc arc, List list) {
+            if (arc != null) {
+                if (arc.heightL == arc.heightR) {
+                    list.add(arc.key);
+                }
+                findArcsWithEqualSubtreeViaPreOrderTraversal(arc.left, list);
+                findArcsWithEqualSubtreeViaPreOrderTraversal(arc.right, list);
             }
             return list;
         }
@@ -115,45 +123,61 @@ public class Task7 {
             root = insertRecursively(root, key);
         }
 
-        public List findNodesWithLevel(Node node, long i, long level, List list) {
-            if(node != null) {
-                if (i != level) {
-                    i--;
-                    findNodesWithLevel(node.left, i, level, list);
-                    findNodesWithLevel(node.right, i, level, list);
-                } else list.add(node);
-            }
-            return list;
-        }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        new Thread(null, new Task7(), "", 256 * 1024 * 1024).start();
+    }
+
+    public void run() {
         Tree tree = new Tree();
-        BufferedReader br = new BufferedReader(new FileReader("inputs//input7.txt"));
-        String line;
-        while((line = br.readLine()) != null)
-            tree.insert(Long.parseLong(line));
-        br.close();
-        tree.findHeightsViaPostOrderTraversal(tree.root);
-        long treeHeight = tree.root.height;
-        long level;
-        if(treeHeight % 2 == 0)
-            level = treeHeight / 2;
-        else level = (treeHeight - 1) / 2;
-        long i = treeHeight;
-        List<Node> nodesList = new LinkedList<>();
-        nodesList = tree.findNodesWithLevel(tree.root, i, level, nodesList);
-        nodesList = nodesList.stream()
-                .filter(x -> (x.rHeight == x.lHeight))
-                .collect(Collectors.toList());
-        if(nodesList.size() % 2 == 1) {
-            tree.delete(nodesList.get((nodesList.size() - 1) / 2).key);
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("tst.in"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
+        String line = null;
+        while (true) {
+            try {
+                if (!((line = br.readLine()) != null)) break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            tree.insert(Long.parseLong(line));
+        }
+        try {
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        tree.findHeights(tree.root);
         List<Long> list = new LinkedList<>();
-        list = tree.preOrderTraversal(tree.root, list);
-        FileWriter fw = new FileWriter("outputs//output7.txt");
-        for(Long height : list)
-          fw.write(height.toString() + "\n");
-        fw.close();
+        list = tree.findArcsWithEqualSubtreeViaPreOrderTraversal(tree.root, list);
+
+        if (list.size() % 2 == 1) {
+            Collections.sort(list);
+            tree.delete(list.get((list.size() - 1) / 2));
+        }
+        List<Long> list1 = new LinkedList<>();
+        list = tree.preOrderTraversal(tree.root, list1);
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("tst.out");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for (Long height : list) {
+            try {
+                fw.write(height.toString() + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
