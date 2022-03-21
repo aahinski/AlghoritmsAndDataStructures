@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class Task6DP {
+public class Task6DPLongestIncreasingSubstring {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("inputs//input6dp.txt"));
         int n = Integer.parseInt(br.readLine());

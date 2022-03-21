@@ -2,7 +2,7 @@ package DynamicProgramming;
 
 import java.io.*;
 
-public class Task01DP {
+public class Task01DPMatrixChain {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("inputs//input01dp.txt"));
         int n = Integer.parseInt(br.readLine());

@@ -3,7 +3,7 @@ package DynamicProgramming;
 import java.io.*;
 import java.util.*;
 
-public class Task692DP {
+public class Task692DPFrog {
     static int g(int a, int b, int i) {
         if(a >= b)
             return i - 1;

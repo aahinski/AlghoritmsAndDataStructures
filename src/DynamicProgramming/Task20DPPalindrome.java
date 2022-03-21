@@ -2,7 +2,7 @@ package DynamicProgramming;
 
 import java.io.*;
 
-public class Task20DP {
+public class Task20DPPalindrome {
     static int max(int a, int b) {
         if(a >= b) return a;
         else return b;

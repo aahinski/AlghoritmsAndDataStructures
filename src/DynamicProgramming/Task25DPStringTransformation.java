@@ -2,7 +2,7 @@ package DynamicProgramming;
 
 import java.io.*;
 
-public class Task25DP {
+public class Task25DPStringTransformation {
     public static int min(int a, int b, int c) {
         return Math.min(Math.min(a, b), c);
     }
