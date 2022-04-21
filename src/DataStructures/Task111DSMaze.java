@@ -8,6 +8,11 @@ public class Task111DSMaze {
     static int m;
     static int[][] maze; // for inputs & outputs
     static int[][] labyrinth; // for keeping results of previous moves
+    static int survivors;
+    static Stack<Pair> stack;
+    static boolean flag;
+    static int k;
+    static int[] hatches;
 
     public static class Pair {
         public int x;
@@ -19,18 +24,117 @@ public class Task111DSMaze {
         }
     }
 
+    public static void goLeft(int j, Pair peek) {
+        if (peek.x == (n - 1)) {
+            for (int l = 0; l < k; l++) {
+                if (peek.y == hatches[l]) {
+                    flag = false;
+                    while (!stack.empty()) {
+                        maze[stack.peek().x][stack.peek().y] = j + 2;
+                        stack.pop();
+                    }
+                    labyrinth[peek.x][peek.y] = 0;
+                    survivors++;
+                    break;
+                }
+            }
+        }
+        stack.push(new Pair(peek.x, peek.y - 1));
+    }
+
+    public static void goDown(int j, Pair peek) {
+        if (peek.x == (n - 1)) {
+            for (int l = 0; l < k; l++) {
+                if (peek.y == hatches[l]) {
+                    flag = false;
+                    while (!stack.empty()) {
+                        maze[stack.peek().x][stack.peek().y] = j + 2;
+                        stack.pop();
+                    }
+                    labyrinth[peek.x][peek.y] = 0;
+                    survivors++;
+                    break;
+                }
+            }
+        }
+        stack.push(new Pair(peek.x + 1, peek.y));
+    }
+
+    public static void goRight(int j, Pair peek) {
+        if (peek.x == (n - 1)) {
+            for (int l = 0; l < k; l++) {
+                if (peek.y == hatches[l]) {
+                    flag = false;
+                    while (!stack.empty()) {
+                        maze[stack.peek().x][stack.peek().y] = j + 2;
+                        stack.pop();
+                    }
+                    labyrinth[peek.x][peek.y] = 0;
+                    survivors++;
+                    break;
+                }
+            }
+        }
+        stack.push(new Pair(peek.x, peek.y + 1));
+    }
+
+    public static void goUp(int j, Pair peek) {
+        if (peek.x == (n - 1)) {
+            for (int l = 0; l < k; l++) {
+                if (peek.y == hatches[l]) {
+                    flag = false;
+                    while (!stack.empty()) {
+                        maze[stack.peek().x][stack.peek().y] = j + 2;
+                        stack.pop();
+                    }
+                    labyrinth[peek.x][peek.y] = 0;
+                    survivors++;
+                    break;
+                }
+            }
+        }
+        stack.push(new Pair(peek.x - 1, peek.y));
+    }
+
+    public static void deadEnd(int j, Pair peek) {
+        if (peek.x == (n - 1)) {
+            boolean hatchFlag = false;
+            for (int l = 0; l < k; l++) {
+                if (peek.y == hatches[l]) {
+                    hatchFlag = true;
+                    flag = false;
+                    while (!stack.empty()) {
+                        maze[stack.peek().x][stack.peek().y] = j + 2;
+                        stack.pop();
+                    }
+                    labyrinth[peek.x][peek.y] = 0;
+                    survivors++;
+                    break;
+                }
+            }
+            if(!hatchFlag) {
+                stack.pop();
+                if (stack.empty())
+                    flag = false;
+            }
+        } else {
+            stack.pop();
+            if (stack.empty())
+                flag = false;
+        }
+    }
+
     public static void main(String[] args) throws IOException {
-        long time = System.currentTimeMillis();
         BufferedReader br = new BufferedReader(new FileReader("inputs//input111ds.txt"));
         String[] nmk = br.readLine().split(" ");
         n = Integer.parseInt(nmk[0]);
         m = Integer.parseInt(nmk[1]);
-        int k = Integer.parseInt(nmk[2]);
+        k = Integer.parseInt(nmk[2]);
         int[] entrances = new int[k];
         String[] tmp = br.readLine().split(" ");
         for (int j = 0; j < k; j++)
             entrances[j] = Integer.parseInt(tmp[j]) - 1;
-        int[] hatches = new int[k];
+        hatches = new int[k];
         tmp = br.readLine().split(" ");
         for (int j = 0; j < k; j++)
             hatches[j] = Integer.parseInt(tmp[j]) - 1;
@@ -48,125 +152,90 @@ public class Task111DSMaze {
                 labyrinth[j][l] = maze[j][l];
             }
         }
-        int[] hatchersLastUsers = new int[k];
-        for(int hatcher : hatchersLastUsers)
-            hatcher = -1;
 
-        int survivors = 0;
+        survivors = 0;
         for (int j = 0; j < k; j++) {
-            Stack<Pair> stack = new Stack<>();
+            stack = new Stack<>();
             if(labyrinth[0][entrances[j]] == 0) {
                 stack.push(new Pair(0, entrances[j]));
-                boolean flag = true;
+                flag = true;
+                int direction = 0;
+                //down - 0
+                //right - 1
+                //up - 2
+                //left - 3
                 while (flag) {
                     Pair peek = new Pair(stack.peek().x, stack.peek().y);
-                    if (peek.y != 0 && labyrinth[peek.x][peek.y - 1] == 0) {
-                        labyrinth[peek.x][peek.y] = 1;
-                        if (peek.x == (n - 1)) {
-                            for (int l = 0; l < k; l++) {
-                                if (peek.y == hatches[l]) {
-                                    flag = false;
-                                    hatchersLastUsers[l] = (j + 2);
-                                    stack.pop();
-                                    while (!stack.empty()) {
-                                        maze[stack.peek().x][stack.peek().y] = j + 2;
-                                        stack.pop();
-                                    }
-                                    labyrinth[peek.x][peek.y] = 0;
-                                    survivors++;
-                                    break;
-                                }
-                            }
-                        }
-                        stack.push(new Pair(peek.x, peek.y - 1));
-                    } else if (peek.x != (n - 1) && labyrinth[peek.x + 1][peek.y] == 0) {
-                        labyrinth[stack.peek().x][stack.peek().y] = 1;
-                        stack.push(new Pair(peek.x + 1, peek.y));
-                        if (peek.x == (n - 1)) {
-                            for (int l = 0; l < k; l++) {
-                                if (peek.y == hatches[l]) {
-                                    flag = false;
-                                    hatchersLastUsers[l] = (j + 2);
-                                    stack.pop();
-                                    while (!stack.empty()) {
-                                        maze[stack.peek().x][stack.peek().y] = j + 2;
-                                        stack.pop();
-                                    }
-                                    labyrinth[peek.x][peek.y] = 0;
-                                    survivors++;
-                                    break;
-                                }
-                            }
-                        }
-                        stack.push(new Pair(peek.x + 1, peek.y));
-                    } else if (peek.y != (m - 1) && labyrinth[peek.x][peek.y + 1] == 0) {
-                        labyrinth[stack.peek().x][stack.peek().y] = 1;
-                        if (peek.x == (n - 1)) {
-                            for (int l = 0; l < k; l++) {
-                                if (peek.y == hatches[l]) {
-                                    flag = false;
-                                    hatchersLastUsers[l] = (j + 2);
-                                    stack.pop();
-                                    while (!stack.empty()) {
-                                        maze[stack.peek().x][stack.peek().y] = j + 2;
-                                        stack.pop();
-                                    }
-                                    labyrinth[peek.x][peek.y] = 0;
-                                    survivors++;
-                                    break;
-                                }
-                            }
-                        }
-                        stack.push(new Pair(peek.x, peek.y + 1));
-                    } else if (peek.x != 0 && labyrinth[peek.x - 1][peek.y] == 0) {
-                        labyrinth[stack.peek().x][stack.peek().y] = 1;
-                        if (peek.x == (n - 1)) {
-                            for (int l = 0; l < k; l++) {
-                                if (peek.y == hatches[l]) {
-                                    flag = false;
-                                    hatchersLastUsers[l] = (j + 2);
-                                    stack.pop();
-                                    while (!stack.empty()) {
-                                        maze[stack.peek().x][stack.peek().y] = j + 2;
-                                        stack.pop();
-                                    }
-                                    labyrinth[peek.x][peek.y] = 0;
-                                    survivors++;
-                                    break;
-                                }
-                            }
-                        }
-                        stack.push(new Pair(peek.x - 1, peek.y));
-                    } else {
-                        if (peek.x == (n - 1)) {
-                            for (int l = 0; l < k; l++) {
-                                if (peek.y == hatches[l]) {
-                                    flag = false;
-                                    hatchersLastUsers[l] = (j + 2);
-                                    stack.pop();
-                                    while (!stack.empty()) {
-                                        maze[stack.peek().x][stack.peek().y] = j + 2;
-                                        stack.pop();
-                                    }
-                                    labyrinth[peek.x][peek.y] = 0;
-                                    survivors++;
-                                    break;
-                                }
-                            }
+                    labyrinth[peek.x][peek.y] = 1;
+                    if(direction == 0) {
+                        if (peek.y != 0 && labyrinth[peek.x][peek.y - 1] == 0) {
+                            goLeft(j, peek);
+                            direction = 3;
+                        } else if (peek.x != (n - 1) && labyrinth[peek.x + 1][peek.y] == 0) {
+                            goDown(j, peek);
+                            direction = 0;
+                        } else if (peek.y != (m - 1) && labyrinth[peek.x][peek.y + 1] == 0) {
+                            goRight(j, peek);
+                            direction = 1;
+                        } else if (peek.x != 0 && labyrinth[peek.x - 1][peek.y] == 0) {
+                            goUp(j, peek);
+                            direction = 2;
                         } else {
-                            stack.pop();
-                            if (stack.empty())
-                                flag = false;
+                            deadEnd(j, peek);
+                        }
+                    } else if(direction == 1) {
+                        if (peek.x != (n - 1) && labyrinth[peek.x + 1][peek.y] == 0) {
+                            goDown(j, peek);
+                            direction = 0;
+                        } else if (peek.y != (m - 1) && labyrinth[peek.x][peek.y + 1] == 0) {
+                            goRight(j, peek);
+                            direction = 1;
+                        } else if (peek.x != 0 && labyrinth[peek.x - 1][peek.y] == 0) {
+                            goUp(j, peek);
+                            direction = 2;
+                        } else if (peek.y != 0 && labyrinth[peek.x][peek.y - 1] == 0) {
+                            goLeft(j, peek);
+                            direction = 3;
+                        } else {
+                            deadEnd(j, peek);
+                        }
+                    } else if(direction == 2) {
+                        if (peek.y != (m - 1) && labyrinth[peek.x][peek.y + 1] == 0) {
+                            goRight(j, peek);
+                            direction = 1;
+                        } else if (peek.x != 0 && labyrinth[peek.x - 1][peek.y] == 0) {
+                            goUp(j, peek);
+                            direction = 2;
+                        } else if (peek.y != 0 && labyrinth[peek.x][peek.y - 1] == 0) {
+                            goLeft(j, peek);
+                            direction = 3;
+                        } else if (peek.x != (n - 1) && labyrinth[peek.x + 1][peek.y] == 0) {
+                            goDown(j, peek);
+                            direction = 0;
+                        } else {
+                            deadEnd(j, peek);
+                        }
+                    } else {
+                        if (peek.x != 0 && labyrinth[peek.x - 1][peek.y] == 0) {
+                            goUp(j, peek);
+                            direction = 2;
+                        } else if (peek.y != 0 && labyrinth[peek.x][peek.y - 1] == 0) {
+                            goLeft(j, peek);
+                            direction = 3;
+                        } else if (peek.x != (n - 1) && labyrinth[peek.x + 1][peek.y] == 0) {
+                            goDown(j, peek);
+                            direction = 0;
+                        } else if (peek.y != (m - 1) && labyrinth[peek.x][peek.y + 1] == 0) {
+                            goRight(j, peek);
+                            direction = 1;
+                        } else {
+                            deadEnd(j, peek);
                         }
                     }
                 }
             }
         }
 
-        for(int j = 0; j < k; j++) {
-            if(hatchersLastUsers[j] != -1)
-                maze[n - 1][hatches[j]] = hatchersLastUsers[j];
-        }
         PrintWriter pw = new PrintWriter("outputs//output111ds.txt");
         pw.write(survivors + "\n");
         for(i = 0; i < n; i++) {
@@ -176,6 +245,5 @@ public class Task111DSMaze {
             pw.write("\n");
         }
         pw.close();
-        System.out.println(System.currentTimeMillis() - time);
     }
 }
