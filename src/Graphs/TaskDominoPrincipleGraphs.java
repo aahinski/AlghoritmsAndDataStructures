@@ -1,88 +1,166 @@
 package Graphs;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class TaskDominoPrincipleGraphs {
-    static int V;
-    static boolean possible;
 
-    static class Graph {
-        private int V;                              //number of nodes in the graph
-        private LinkedList<Integer> adj[];              //adjacency list
-        private Queue<Integer> queue;                   //maintaining a queue
+    public static class FastScanner {
+        BufferedReader br;
+        StringTokenizer st;
 
-        Graph(int v) {
-            V = v;
-            adj = new LinkedList[v];
-            for (int i = 0; i < v; i++) {
-                adj[i] = new LinkedList<>();
+        public FastScanner(){
+            init();
+        }
+
+        public FastScanner(String name) {
+            init(name);
+        }
+
+        public FastScanner(boolean isOnlineJudge){
+            if(!isOnlineJudge || System.getProperty("ONLINE_JUDGE") != null){
+                init();
+            }else{
+                init("input.txt");
             }
-            queue = new LinkedList<Integer>();
         }
 
-
-        void addEdge(int v, int w) {
-            adj[v].add(w);                          //adding an edge to the adjacency list (edges are bidirectional in this example)
+        private void init(){
+            br = new BufferedReader(new InputStreamReader(System.in));
         }
 
-        int BFS(int n) {
-            int time = - 1;
-            int count = 0;
-            boolean nodes[] = new boolean[V];       //initialize boolean array for holding the data
-            int a = 0;
+        private void init(String name){
+            try {
+                br = new BufferedReader(new FileReader(name));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
-            nodes[n] = true;
-            queue.add(n);                   //root node is added to the top of the queue
+        public String nextToken(){
+            while(st == null || !st.hasMoreElements()){
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
 
-            while (queue.size() != 0) {
-                n = queue.poll();             //remove the top element of the queue
+        public int nextInt(){
+            return Integer.parseInt(nextToken());
+        }
 
-                for (int i = 0; i < adj[n].size(); i++)  //iterate through the linked list and push all neighbors into queue
-                {
-                    a = adj[n].get(i);
-                    if (!nodes[a])                    //only insert nodes into queue if they have not been explored already
-                    {
-                        nodes[a] = true;
-                        queue.add(a);
-                        count++;
-                        time++;
+        public long nextLong(){
+            return Long.parseLong(nextToken());
+        }
+
+        public double nextDouble(){
+            return Double.parseDouble(nextToken());
+        }
+
+    }
+
+    static ArrayList<ArrayList<Integer>> adj;
+    static int maxTime;
+    static int maxVertice;
+    static int v;
+    static int[] time;
+    static int[] visited;
+    static LinkedList<Integer> q;
+
+    static void bfs(int start) {
+        int localMaxTime = 0;
+        Arrays.fill(visited, 0);
+        visited[start] = 1;
+        q.add(start);
+        time[start] = 0;
+        int count = 1;
+        while (!q.isEmpty()) {
+            int tmp = q.pop();
+            for (int j : adj.get(tmp)) {
+                if (visited[j] == 0) {
+                    q.add(j);
+                    time[j] = time[tmp] + 1;
+                    count++;
+                    visited[j] = 1;
+                    if(time[j] >= localMaxTime) {
+                        localMaxTime = time[j];
                     }
                 }
             }
-            if(count == V - 1) possible = true;
-            return time;
+        }
+        if(count == v) {
+            if(localMaxTime >= maxTime) {
+                maxTime = localMaxTime;
+                maxVertice = start;
+            }
         }
     }
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader("inputs//input5graphs.txt"));
-        possible = false;
-        V = Integer.parseInt(br.readLine());
-        Graph g = new Graph(V);
-        for (int i = 0; i < V; i++) {
-            String[] tmp = br.readLine().split(" ");
-            for (int j = 1; j < tmp.length; j++) {
-                g.addEdge(i, Integer.parseInt(tmp[j]) - 1);
+        maxVertice = 0;
+        maxTime = -1;
+        FastScanner fs = new FastScanner("inputs//input5graphs.txt");
+        v = fs.nextInt();
+        adj = new ArrayList<>(v);
+        for (int i = 0; i < v; i++) {
+            adj.add(new ArrayList<>(v));
+        }
+        int[] arr = new int[v];
+        Arrays.fill(arr, 0);
+        for (int i = 0; i < v; i++) {
+            int l = fs.nextInt();
+            ArrayList<Integer> tmp = adj.get(i);
+            for (int j = 0; j < l; j++) {
+                int next = fs.nextInt() - 1;
+                tmp.add(next);
+                arr[next] = arr[next] + 1;
             }
         }
-        int vertice = 0;
-        int maxTime = 0;
-        for (int i = 0; i < V; i++) {
-            int time = g.BFS(i);
-            if(time > maxTime) {
-                maxTime = time;
-                vertice = i;
-            }
+        int count = 0;
+        for(int i : arr) {
+            if(i == 0) count++;
         }
-        FileWriter fw = new FileWriter(new File("outputs//output5graphs.txt"));
-        if(possible) {
-            fw.write(maxTime + "\n" + (vertice + 1));
-        } else {
+        if(count > 2) {
+            FileWriter fw = new FileWriter("outputs//output5graphs.txt");
             fw.write("impossible");
+            fw.close();
         }
-        fw.close();
+        else if (count == 1) {
+            int j = 0;
+            for (int i = 0; i < v; i++) {
+                if (arr[i] == 0) {
+                    j = i;
+                    break;
+                }
+            }
+            time = new int[v];
+            visited = new int[v];
+            q = new LinkedList<>();
+            bfs(j);
+            FileWriter fw = new FileWriter("outputs//output5graphs.txt");
+            if(maxTime > -1) {
+                fw.write(maxTime + "\n" + (maxVertice + 1));
+            } else {
+                fw.write("impossible");
+            }
+            fw.close();
+        } else {
+            time = new int[v];
+            visited = new int[v];
+            q = new LinkedList<>();
+            for (int i = 0; i < v; i++) {
+                bfs(i);
+            }
+            FileWriter fw = new FileWriter("outputs//output5graphs.txt");
+            if (maxTime > -1) {
+                fw.write(maxTime + "\n" + (maxVertice + 1));
+            } else {
+                fw.write("impossible");
+            }
+            fw.close();
+        }
     }
 }
